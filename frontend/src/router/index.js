@@ -9,7 +9,7 @@ const routes = [
   { path: "/", name: "UserLogin", component: UserLogin }, // 使用 UserLogin 組件
   { path: "/home", name: "HomePage", component: HomePage },
   { path: "/analysis", name: " analysis", component: analysis },
-  { path: "/registerPage", name: "registerPage", component: registerPage },
+  { path: "/registerPage", name: "RegisterPage", component: RegisterPage },
 ];
 
 const router = createRouter({
