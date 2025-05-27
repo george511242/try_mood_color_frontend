@@ -93,8 +93,10 @@ const fetchColorForDate = async (selectedDate) => {
     console.log("color get:", response); // ← 加這一行來觀察
 
     // 检查响应状态
-    if (response.statusText !== "OK") {
-      alert("無法獲取顏色：" + response.data.message);
+    const data = response.data;
+
+    if (response.status !== 200 || !data?.hex || !data?.content_text) {
+      alert("尚未填寫顏色資料！");
       return;
     }
 
