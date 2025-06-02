@@ -2,6 +2,7 @@
   <v-app>
     <SideBar>
       <div class="container">
+        <!-- 上方資訊欄 -->
         <div class="item infobar">
           <DialogBox>
             <template #content>
@@ -12,6 +13,8 @@
             <span class="text-h5">CJ</span>
           </v-avatar>
         </div>
+
+        <!-- 日曆與顏色圓圈 -->
         <div>
           <keep-alive>
             <CalenderView @update:date="fetchColorForDate" />
@@ -22,6 +25,7 @@
           </div>
         </div>
 
+        <!-- 日記區塊 -->
         <div class="journal">
           <h2>Date: {{ parentPickedDate }} </h2>
           <v-textarea
@@ -36,8 +40,8 @@
             color="white" 
             @click="submitJournal"
           >
-            <span v-if="isLoading">Submitting...</span> <!-- 如果正在提交，显示提交中 -->
-            <span v-else>Submit</span> <!-- 否则显示普通的提交按钮 -->
+            <span v-if="isLoading">Submitting...</span>
+            <span v-else>Submit</span>
           </v-btn>
         </div>
       </div>
@@ -54,68 +58,52 @@ import ColorCircle from "../components/ColorCircle.vue";
 import api from "@/api";
 import { useUserStore } from "@/stores/user";
 
-const userStore = useUserStore(); // 使用 Pinia store
-const userId = ref(null); // 用來存儲 userId
+const userStore = useUserStore();
+const userId = ref(null);
 const isLoading = ref(false);
 
-const parentPickedDate = ref(""); // 用戶選的日期
-const journalText = ref(""); // 用戶輸入的日記內容
-const color = ref(""); // 用來儲存顏色
+const parentPickedDate = ref("");
+const journalText = ref("");
+const color = ref("");
 const text = ref("");
 const geminiComment = ref("");
 
-
-// 預設頁面日期為今天
+// 預設為今天
 onMounted(() => {
-  userStore.loadUserId(); // 確保讀取 userId
-  userId.value = userStore.userId; // 從 store 獲取 userId
+  userStore.loadUserId();
+  userId.value = userStore.userId;
 
   if (!userId.value) {
     alert("用戶尚未登入");
   }
-  
-  // 預設為今天的日期
-  const today = new Date();
-  parentPickedDate.value = today.toISOString().split("T")[0]; // 格式化日期为 "YYYY-MM-DD"
 
-  // 頁面載入時抓取今天的顏色
+  const today = new Date();
+  parentPickedDate.value = today.toISOString().split("T")[0];
   fetchColorForDate(parentPickedDate.value);
 });
 
-// 通过 API 获取选定日期的颜色
 const fetchColorForDate = async (selectedDate) => {
-  parentPickedDate.value = selectedDate; // 更新选定的日期
+  parentPickedDate.value = selectedDate;
   try {
-    isLoading.value = true; // 启动加载状态
-
-    // 发起请求获取该日期的颜色，使用路径参数而不是查询参数
+    isLoading.value = true;
     const response = await api.get(`/api/mood_tree_color/${userId.value}/${selectedDate}`);
-    console.log("color get:", response); // ← 加這一行來觀察
-
-    // 检查响应状态
-    const data = response.data;
-
-    if (response.status !== 200 || !data?.hex || !data?.content_text) {
-      alert("尚未填寫顏色資料！");
+    if (response.statusText !== "OK") {
+      alert("無法獲取顏色：" + response.data.message);
       return;
     }
 
-    // 获取并设置颜色
     color.value = response.data.hex;
     text.value = response.data.content_text;
-   
-    localStorage.setItem("lastColor", color.value); // 将颜色存储到 localStorage 中
-    localStorage.setItem("lastText", text.value); // 将文本存储到 localStorage 中
+    localStorage.setItem("lastColor", color.value);
+    localStorage.setItem("lastText", text.value);
   } catch (error) {
     console.error("獲取顏色失敗:", error);
     alert("今天還沒留下日記唷！");
   } finally {
-    isLoading.value = false; // 结束加载状态
+    isLoading.value = false;
   }
 };
 
-
-// 提交日记
 const submitJournal = async () => {
   try {
     if (!journalText.value) {
@@ -131,20 +119,14 @@ const submitJournal = async () => {
     formData.append("mood_icon_code", "string");
 
     const response = await api.post("/api/Post_diary_entry", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: { "Content-Type": "multipart/form-data" },
     });
 
     if (response.data.status === "success") {
-      color.value = response.data.diary_entry.hex_color_code; // 获取并更新颜色
-      console.log('gemini comment:', response.data.gemini_comment);
-      console.log("API response data:", response.data);
-
+      color.value = response.data.diary_entry.hex_color_code;
       geminiComment.value = response.data.gemini_comment;
-      text.value = journalText.value; 
-      localStorage.setItem("lastColor", color.value); // 存储颜色到 localStorage
-      console.log("color get:", color); // ← 加這一行來觀察
+      text.value = journalText.value;
+      localStorage.setItem("lastColor", color.value);
       alert("日記上傳成功");
     } else {
       alert("發生錯誤：" + response.data.message);
@@ -153,42 +135,45 @@ const submitJournal = async () => {
     console.error("發生錯誤:", error);
     alert("發生錯誤，請稍後再試");
   } finally {
-    isLoading.value = false;  // 完成后将 isLoading 设置为 false，重新启用按钮
+    isLoading.value = false;
   }
 };
 </script>
 
-
 <style scoped>
-
 .container {
   display: grid;
   margin-top: 30px;
   grid-template-columns: auto auto;
-  grid-template-rows: auto  ;
+  grid-template-rows: auto;
   gap: 40px;
 }
+
 .item {
   grid-column: 2;
   align-self: center;
 }
+
 .infobar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   height: 100%;
 }
+
 .journal {
   display: flex;
   flex-direction: column;
   min-height: 600px;
 }
+
 .submit-button {
   width: 130px;
   align-self: flex-end;
   color: #1976d2;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
 .square-card[data-v-19047e93] {
   width: 450px;
   height: 280px;
@@ -196,10 +181,50 @@ const submitJournal = async () => {
   flex-direction: column;
   justify-content: flex-start;
 }
+
 .color-circle-wrapper {
   display: flex;
   justify-content: center;
   margin-top: 10px;
 }
 
+/* 👉 手機版排版調整 */
+@media (max-width: 768px) {
+  .container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 16px;
+  }
+
+  .item {
+    grid-column: auto;
+    align-self: stretch;
+  }
+
+  .infobar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .journal {
+    min-height: auto;
+  }
+
+  .submit-button {
+    width: 100%;
+  }
+
+  .square-card[data-v-19047e93] {
+    width: 100%;
+    height: auto;
+  }
+
+  .color-circle-wrapper {
+    margin-top: 0;
+    overflow-x: auto;
+    max-width: 100%;
+  }
+}
 </style>
