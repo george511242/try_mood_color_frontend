@@ -1,12 +1,13 @@
 <template>
-  <v-card class="square-card" elevation="3">
-    <v-card-title>Your color of today</v-card-title>
-    <v-card-subtitle>{{ formattedDate }}</v-card-subtitle>
+  <v-card class="color-card" elevation="4" rounded="xl">
+    <v-card-title class="font-weight-medium text-center">
+      Your Color of Today
+    </v-card-title>
+    <v-card-subtitle class="text-center mb-2">{{ formattedDate }}</v-card-subtitle>
 
-    <v-card-text class="fixed-width-card-text">
+    <v-card-text class="text-center">
       <div class="circle" :style="{ backgroundColor: computedColor }"></div>
-      <br />
-      <div class="text-below-circle">{{ text }}</div>
+      <div class="mood-text mt-4">{{ text || 'No entry yet.' }}</div>
     </v-card-text>
   </v-card>
 </template>
@@ -15,8 +16,8 @@
 export default {
   name: "ColorCircle",
   props: {
-    date: String, // 傳進來的日期
-    color: String, // 新增：傳進來的顏色
+    date: String,
+    color: String,
     text: String,
   },
   computed: {
@@ -24,40 +25,34 @@ export default {
       return this.date || new Date().toISOString().slice(0, 10);
     },
     computedColor() {
-      // 如果父層有傳顏色，優先使用；否則預設顏色
-      return this.color && this.color.trim() !== "" ? this.color : "#f39c12";
+      return this.color?.trim() || "#f39c12";
     },
   },
 };
 </script>
 
 <style scoped>
-.square-card {
-  width: 250px;
-  height: 350px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  overflow-y: auto;
-  
+.color-card {
+  width: 100%;
+  max-width: 320px;
+  min-height: 350px;
+  margin: auto;
+  padding: 16px;
+  border-radius: 16px;
 }
 
 .circle {
-  width: 110px;
-  height: 110px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  margin-top: 8px;
-  margin-left: auto;
-  margin-right: auto;
-  transition: background-color 0.3s;
-  border: 1px solid black;
+  margin: auto;
+  border: 2px solid #ddd;
+  transition: background-color 0.4s ease-in-out;
 }
 
-
-/* .text-below-circle {
-  text-align: center;
-  margin-top: 8px;
-  font-size: 14px;
-  color: #333;
-} */
+.mood-text {
+  font-size: 16px;
+  color: #555;
+  margin-top: 12px;
+}
 </style>

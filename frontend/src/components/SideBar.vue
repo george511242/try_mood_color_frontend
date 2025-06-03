@@ -1,48 +1,45 @@
 <template>
   <v-app>
     <!-- 上方 ToolBar -->
-    <v-app-bar app color="white" elevation="2">
+    <v-app-bar app color="white" elevation="2" class="px-4">
       <v-app-bar-nav-icon @click="drawer = !drawer" />
       <v-img
         src="@/assets/logo.png"
-        max-width="40"
-        max-height="32"
+        max-width="36"
+        max-height="36"
         class="ml-2"
         contain
       ></v-img>
-      <v-toolbar-title style="font-size: 25px; font-weight: bold"
-        >Your Mood Color Journey</v-toolbar-title
-      >
+      <v-toolbar-title class="text-h6 font-weight-bold ml-3">
+        Your Mood Color Journey
+      </v-toolbar-title>
     </v-app-bar>
 
     <!-- 側邊欄 Drawer -->
-    <v-navigation-drawer app v-model="drawer">
-      <v-list>
+    <v-navigation-drawer app v-model="drawer" elevation="3">
+      <v-list dense nav>
         <v-list-item
-          button
-          @click="goToTodo('/home')"
-          class="d-flex align-center"
+          @click="goTo('/home')"
+          class="nav-item"
         >
-          <v-icon class="mr-2">mdi-home</v-icon>
-          home
+          <v-icon class="mr-3">mdi-home</v-icon>
+          <span>Home</span>
         </v-list-item>
 
         <v-list-item
-          button
-          @click="goToTodo('/analysis')"
-          class="d-flex align-center"
+          @click="goTo('/analysis')"
+          class="nav-item"
         >
-          <v-icon class="mr-2">mdi-account-group</v-icon>
-          Anaylsis
+          <v-icon class="mr-3">mdi-chart-bar</v-icon>
+          <span>Analysis</span>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
     <!-- 主內容區域 -->
-    <v-main>
-      <v-container>
-        <!-- 使用 slot 來接收父頁面傳來的內容 -->
-        <slot></slot>
+    <v-main class="bg-grey-lighten-4">
+      <v-container fluid>
+        <slot />
       </v-container>
     </v-main>
   </v-app>
@@ -53,40 +50,33 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 
 export default {
-  name: "TodayAttendance", // 拼字修正
-  components: {},
+  name: "AppSidebar", // ✅ 避免 ESLint 問題
   setup() {
     const drawer = ref(false);
-
     const router = useRouter();
 
-    function goToTodo(page) {
-      router.push(page);
-    }
+    const goTo = (path) => {
+      router.push(path);
+    };
 
     return {
       drawer,
-      goToTodo,
+      goTo,
     };
   },
 };
 </script>
 
 <style scoped>
-h2 {
-  margin: 10px auto;
-  font-size: 30px;
-}
-
-.login-page {
+.nav-item {
+  padding: 12px 16px;
+  border-radius: 10px;
+  transition: background-color 0.3s ease;
   display: flex;
-  flex-direction: column;
-  align-items: center; /* 這樣內容（input, button）就會置中 */
-  margin-top: 0px;
+  align-items: center;
 }
-.centered-input {
-  max-width: 500px;
-  width: 100%;
-  margin: 0 auto;
+.nav-item:hover {
+  background-color: #f5f5f5;
+  cursor: pointer;
 }
 </style>
