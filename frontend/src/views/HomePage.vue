@@ -97,8 +97,10 @@ const fetchColorForDate = async (selectedDate) => {
   try {
     isLoading.value = true;
     const response = await api.get(`/api/mood_tree_color/${userId.value}/${selectedDate}`);
-    if (response.statusText !== "OK") {
-      alert("無法獲取顏色：" + response.data.message);
+    const data = response.data;
+
+    if (response.status !== 200 || !data?.hex || !data?.content_text) {
+      alert("尚未填寫顏色資料！");
       return;
     }
 
